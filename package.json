@@ -1,0 +1,29 @@
+{
+  "name": "@skyf0xx/hedgehog-core-authored",
+  "version": "1.0.0",
+  "description": "Hedgehog's authored core: designs a layer sequence and generates a verified workspace for a project that fits neither shipped Golden Core, plus the same design used to adopt Hedgehog's discipline into an existing repo.",
+  "type": "module",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/skyf0xx/hedgehog-core-authored.git"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "files": [
+    "agents",
+    "skills",
+    "CLAUDE.core.md",
+    "CLAUDE.core.adopted.md",
+    "hedgehog-core.yaml"
+  ],
+  "engines": {
+    "node": ">=22.5.0"
+  },
+  "keywords": [
+    "hedgehog-core",
+    "hedgehog",
+    "claude-code"
+  ],
+  "license": "MIT"
+}
