@@ -1,8 +1,8 @@
 # @skyf0xx/hedgehog-core-authored
 
 Hedgehog's authored core: designs a layer sequence and generates a
-verified workspace for a project that fits neither shipped Golden Core,
-and carries the same design for adopting Hedgehog's discipline into an
+verified workspace for a project that fits neither shipped core, and
+carries the same design for adopting Hedgehog's discipline into an
 existing repo without bootstrapping a workspace at all.
 
 Unlike the `full-stack-app` and `landing-page` cores, this package ships
@@ -47,3 +47,45 @@ A Hedgehog installation depends on this package for the `authored` core
 rather than carrying its content directly. See the Hedgehog engine
 (`@skyf0xx/hedgehog`) for the installer and build-graph tooling that
 consumes it.
+
+## Working on this core
+
+This is a versioned npm package that the Hedgehog engine's `init` fetches
+by name, carrying `authored`'s own agent, skills, and the
+`hedgehog-core.yaml` manifest that names them to the engine. Unlike
+`full-stack-app` and `landing-page`, this package ships no pre-built
+`workspace/` — see the engine repo
+([`skyf0xx/hedgehog`](https://github.com/skyf0xx/hedgehog)) and its
+[`ARCHITECTURE.md`](https://github.com/skyf0xx/hedgehog/blob/master/ARCHITECTURE.md)
+for how `init` resolves and fetches a core package, and for why `authored`
+carries no install flag — that mechanism lives there, not here.
+
+No root `CLAUDE.md` lives in this repo. `CLAUDE.core.md` and
+`CLAUDE.core.adopted.md` are payload files: their content is installed
+into a *consuming project's* generated `CLAUDE.md`, filling that
+project's `{{CORE_SECTION}}` placeholder (the freshly-authored and
+adopted cases respectively). A plain root `CLAUDE.md` here would
+auto-load into any coding agent working on this package itself, bleeding
+project-build context into a repo where no Hedgehog build ever runs —
+build guidance for a project using this core lives in that project's own
+generated `CLAUDE.md`, never here.
+
+Changing this core means editing `agents/layer-eng.md` or one of the
+five skills under `skills/` (`hedgehog-core-design`,
+`hedgehog-bootstrap-authored-core`, `hedgehog-authored-loop`,
+`hedgehog-adopt`, `hedgehog-adopt-elicit`). There is no `workspace/`
+template and no regeneration script here — this core's stack and layer
+sequence are designed live, per project, by `hedgehog-core-design`
+rather than pre-built. A change here is a release of this package, not
+of the engine: bump `package.json`'s version, commit, and merge to
+`main` — this repo's own `publish.yml` tags and publishes from there.
+
+This core has no generator tooling of its own — no `tools/`,
+`generators/`, or `scripts/` directory, since it has no `workspace/`
+template to scaffold boilerplate for. The scaffolding-first policy still
+applies at the point it becomes relevant: if `hedgehog-bootstrap-authored-core`
+or a future authored-core workspace ever needs a piece of repeatable
+generated boilerplate, prefer building or extending a generator over
+hand-authoring the output once, modeled on
+[`hedgehog-core-full-stack-app`](https://github.com/skyf0xx/hedgehog-core-full-stack-app)'s
+`workspace/tools/generators/`, the concrete working example.
