@@ -39,14 +39,14 @@ This is what makes adoption safe to run on a real, live codebase:
   fiction in the permanent record, so this skill doesn't.
 - **No stack migration.** The repo's language, tooling, and conventions
   are already decided. This skill never proposes moving them toward any
-  Golden Core's stack — not Nx, not Drizzle, not anything else Hedgehog
+  shipped core's stack — not Nx, not Drizzle, not anything else Hedgehog
   is opinionated about elsewhere. Every `verify` command it writes is one
   of the repo's own commands, confirmed with the user, never invented.
 - **No legacy-code review.** `reviewer`, once this core is running,
   judges only the unit under change — never findings against pre-existing
   code nothing asked it to look at.
-- **No generators.** Nothing here scaffolds files the way a Golden
-  Core's bootstrap does. This skill's only output is `.hedgehog/`.
+- **No generators.** Nothing here scaffolds files the way a shipped
+  core's bootstrap does. This skill's only output is `.hedgehog/`.
 
 What *does* transfer from the rest of Hedgehog, unweakened: scope as a
 hard boundary on every task, no self-certification (only `hedgehog
@@ -321,7 +321,7 @@ could be misread as a percentage of the whole.
   is `layer-eng`'s job through `hedgehog-authored-loop`, gated the same
   as any other layer.
 - **Never propose converting the repo's stack, structure, or conventions
-  toward any Golden Core's** — not Nx, not a particular ORM, not a
+  toward any shipped core's** — not Nx, not a particular ORM, not a
   particular framework. Not even phrased as a suggestion. This is the one
   headline pillar (opinionated stack + generators) that deliberately does
   not come along to a brownfield adoption — say so if asked, don't quietly

@@ -1,7 +1,7 @@
 ## This project's core: authored
 
 This project's core was designed for it by `hedgehog-core-design` at
-planning intake, rather than taken from a shipped Golden Core. The layer
+planning intake, rather than taken from a shipped core. The layer
 sequence, the stack, and each layer's file scope and verification live in
 two files, and both are locked:
 
