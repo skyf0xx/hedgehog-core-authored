@@ -225,7 +225,7 @@ Nothing else gets written at adoption time. No working code, no
 placeholders — `{{PROJECT_NAME}}`/`{{PROJECT_SUMMARY}}` describe a
 project Hedgehog is building, and adoption isn't building one, so leave
 them alone. Fill root `CLAUDE.md`'s `{{CORE_SECTION}}` placeholder with
-this package's `CLAUDE.core.adopted.md` content — the same mechanic
+`.hedgehog/CLAUDE.core.adopted.md`'s content — the same mechanic
 `hedgehog-bootstrap-authored-core` uses for an authored core, done here
 directly since there is no bootstrap step on this path to do it.
 
