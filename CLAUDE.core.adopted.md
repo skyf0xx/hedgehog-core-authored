@@ -72,7 +72,7 @@ they apply here unchanged.
 
 This repo's language, package manager, and tooling are whatever they
 already were before adoption. Hedgehog never proposes converting them
-toward a Golden Core's stack — not even as a suggestion. Every `verify`
+toward a shipped core's stack — not even as a suggestion. Every `verify`
 command in `.hedgehog/core.yaml` is one of this repo's own commands.
 
 ### Layout
