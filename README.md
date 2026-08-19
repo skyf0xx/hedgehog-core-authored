@@ -5,7 +5,7 @@ verified workspace for a project that fits neither shipped core, and
 carries the same design for adopting Hedgehog's discipline into an
 existing repo without bootstrapping a workspace at all.
 
-Unlike the `full-stack-app` and `landing-page` cores, this package ships
+Unlike other cores, this package ships
 no pre-built workspace — the stack is chosen and the layer sequence
 derived per project by `hedgehog-core-design`, then generated live and
 verified before it's committed.
