@@ -235,7 +235,10 @@ correct. One difference: if the patched layer produces a build artifact
 that downstream layers or a running dev process consume (a compiled
 package, a generated client, a bundled asset), rebuild it before
 re-verifying — an unbuilt patch looks unchanged to anything reading the
-built output.
+built output. Before patching, check the host's LSP tool, when the
+project's language has LSP support, for what already references the
+symbol being changed — the one thing a per-project stack can't fix in
+advance is whether that tooling exists at all.
 
 When the correction is to the **layer sequence itself** — a layer in the
 wrong place, a missing layer, a scope glob that never fits — that's a
