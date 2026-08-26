@@ -220,14 +220,48 @@ showing it back:
 node -e "import('<path-to-hedgehog-install>/src/db/core.mjs').then(m => m.loadCore('.hedgehog/core.yaml')).then(c => console.log(JSON.stringify(c, null, 2)))"
 ```
 
-Nothing else gets written at adoption time. No working code, no
+Nothing else gets written at adoption time beyond root `CLAUDE.md`'s
+Hedgehog section and the adopted-core record below. No working code, no
 `package.json` edits, no formatter run, no root `CLAUDE.md` project
 placeholders — `{{PROJECT_NAME}}`/`{{PROJECT_SUMMARY}}` describe a
 project Hedgehog is building, and adoption isn't building one, so leave
-them alone. Fill root `CLAUDE.md`'s `{{CORE_SECTION}}` placeholder with
-`.hedgehog/CLAUDE.core.adopted.md`'s content — the same mechanic
-`hedgehog-bootstrap-authored-core` uses for an authored core, done here
-directly since there is no bootstrap step on this path to do it.
+them alone.
+
+Merge `.hedgehog/CLAUDE.core.adopted.md`'s content into root `CLAUDE.md`
+via `<path-to-hedgehog-install>/src/hosts/claude-md-merge.mjs`, never a
+raw `{{CORE_SECTION}}` string replace — an adopted repo's root `CLAUDE.md`
+almost always predates Hedgehog and has no such placeholder, since `init`
+never touched this repo before now:
+
+```bash
+node -e "
+import('<path-to-hedgehog-install>/src/hosts/claude-md-merge.mjs').then(async (m) => {
+  const fs = await import('node:fs/promises');
+  const existing = await fs.readFile('CLAUDE.md', 'utf8').catch(() => null);
+  const section = await fs.readFile('.hedgehog/CLAUDE.core.adopted.md', 'utf8');
+  if (existing === null) return; // no root CLAUDE.md — nothing to merge into
+  const out = m.hasCoreSection(existing) && existing.includes('{{CORE_SECTION}}')
+    ? existing.replaceAll('{{CORE_SECTION}}', m.wrapSection(section))
+    : m.appendCoreSection(existing, section);
+  await fs.writeFile('CLAUDE.md', out);
+});
+"
+```
+
+If root `CLAUDE.md` doesn't exist at all, there is nothing to merge
+into — leave it absent rather than generating one; adoption never
+originates a project's root instructions file, only extends one that's
+already there.
+
+Then record the adoption so `hedgehog update` refreshes this core's own
+agents and skills instead of silently deleting them (they were never
+installed by a normal `init --authored`, since adoption's `init` names no
+core): `npx @skyf0xx/hedgehog core record-adopted` (or the locally
+installed `hedgehog` binary), once, right here at first adoption. It
+lands `layer-eng` and every skill this manifest names, then marks the
+project's core record `adopted`. Idempotent — safe to re-run, but there
+is no need to on a later "Adding the first (or next) change-work" pass,
+since nothing about the recorded core changes between those runs.
 
 ## Adding the first (or next) change-work
 
@@ -313,8 +347,10 @@ could be misread as a percentage of the whole.
 - **Never touch working code, at adoption time or ever, as this skill.**
   The only writes this skill makes are `.hedgehog/core.yaml`,
   `.hedgehog/adoption.md` (Step 4's rationale and its "Repo shape"
-  section), root `CLAUDE.md`'s `{{CORE_SECTION}}` placeholder (first run
-  only), and the build graph via `hedgehog intent add`/`hedgehog plan`.
+  section), root `CLAUDE.md`'s Hedgehog section via `claude-md-merge.mjs`
+  and the adopted-core record via `hedgehog core record-adopted` (both
+  first run only), and the build graph via `hedgehog intent add`/
+  `hedgehog plan`.
   `hedgehog-adopt-elicit`'s clarifying pass writes nothing of its own —
   its output only ever becomes `--goal`/`--outcome` text on an
   `hedgehog intent add` call. Everything else — the actual change-work —
