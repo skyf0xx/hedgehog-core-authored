@@ -1,6 +1,6 @@
 {
   "name": "@skyf0xx/hedgehog-core-authored",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "Hedgehog's authored core: designs a layer sequence and generates a verified workspace for a project that fits neither shipped core, plus the same design used to adopt Hedgehog's discipline into an existing repo.",
   "type": "module",
   "scripts": {
