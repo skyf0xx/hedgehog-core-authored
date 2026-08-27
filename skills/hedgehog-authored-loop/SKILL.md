@@ -115,7 +115,10 @@ runtime detail.
    ONE message with parallel tool calls when there's more than one — along
    with the reminder to read this core's rationale file
    (`.hedgehog/core-design.md` or `.hedgehog/adoption.md`) for what its
-   layer owns.
+   layer owns. If a dispatch by name reports the agent as not found —
+   expected right after `init`/`update` installed it this same session —
+   see root CLAUDE.md's "Delegating on this host" note rather than
+   treating it as fatal.
 3. Each agent **runs the packet's VERIFICATION command on its own work**
    as a sanity check before reporting back — necessary, not sufficient.
    Per task, per agent: the agent reports the work as done; it does not
