@@ -196,7 +196,27 @@ Three hold on every authored core regardless of stack:
   string or a silent empty return a caller has to guess at.
 - **Each layer's tests live inside that layer's scope** and run under its
   own `verify` command. A layer whose command passes with no tests
-  certifies nothing.
+  certifies nothing. That is the floor, not a uniform bar — the same
+  depth is not owed everywhere:
+
+  > **Test depth follows verify radius. Review follows exclusivity.**
+  >
+  > A layer whose `verify_radius` equals its `scope` (the unset default)
+  > is internally-consistent-only — its verify command reads only what it
+  > wrote, so enough tests to make that command mean something, and no
+  > more. A layer with a wider declared `verify_radius`, or `exclusive:
+  > true`, is a join or integration point — a verify command that reads
+  > across a boundary or a layer the scheduler never runs alongside
+  > anything else — and that is where behavior actually gets proven: the
+  > real test bar and the `reviewer` pass belong there. Read straight off
+  > `core.yaml`'s own fields, never scheduled as ceremony: a core author
+  > who has already set radius and exclusivity per layer has already
+  > decided the test and review cadence without naming it separately. The
+  > floor above never moves — an empty gate certifies nothing regardless
+  > of radius — this only says where the bar rises above it. Applies to a
+  > layer as declared, not only to a task in flight, so a tweak (no
+  > compiled task, no packet) inherits the same bar from the layer it
+  > lands in.
 
 ## Friction log
 

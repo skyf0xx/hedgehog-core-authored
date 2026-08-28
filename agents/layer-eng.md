@@ -50,7 +50,12 @@ parsing and typing, and the layer after it consumes the result.
   that design named, not reached around.
 - Write the tests the layer's `verify` command runs. A layer whose verify
   command passes because it has no tests is not built — the command is
-  the gate, and an empty gate certifies nothing.
+  the gate, and an empty gate certifies nothing. Depth follows the
+  packet's VERIFICATION: a `verify_radius` equal to scope means enough
+  tests to make your own command mean something; a wider radius, or
+  `exclusive: true`, means this layer is a join or integration point and
+  gets the real test bar (`hedgehog-authored-loop`'s "Test depth follows
+  verify radius" states the full rule).
 - Build this layer's share of the packet's INTENT goal, not just
   something plausible for the layer's name. Your `verify` command runs
   the tests you wrote, so it proves internal consistency and nothing
