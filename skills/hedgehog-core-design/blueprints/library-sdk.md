@@ -6,6 +6,7 @@ adaptation points below are expected, not exceptions — and record what
 changed in `core-design.md`'s rationale.
 
 ```
+pattern: layered   # the boundary is import-path/encapsulation discipline, not a domain kept pure of infrastructure — see "Boundary that must hold"
 core     — the implementation, importable and testable with no knowledge of how it's packaged
 public   — the exported surface: what `index.ts` re-exports, typed and versioned independently of internals
 examples — runnable usage samples that exercise the public surface only, doubling as integration tests

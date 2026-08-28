@@ -6,6 +6,7 @@ below are expected, not exceptions — and record what changed in
 `core-design.md`'s rationale.
 
 ```
+pattern: hexagonal   # domain is testable without a real filesystem or network — see "Boundary that must hold"
 command    — argument/flag parsing and dispatch only, one file per subcommand
 domain     — the logic the command triggers, no knowledge of argv or stdout
 io-adapter — anything crossing a real boundary: filesystem, network, a wrapped subprocess

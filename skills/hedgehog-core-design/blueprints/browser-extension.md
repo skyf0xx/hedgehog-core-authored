@@ -6,6 +6,7 @@ adaptation points below are expected, not exceptions — and record what
 changed in `core-design.md`'s rationale.
 
 ```
+pattern: hexagonal   # background/content/popup each depend on messaging independently, not on each other — see "Boundary that must hold"
 messaging  — the typed message contract between background/content-script/popup
 background — the service-worker-side logic (state, alarms, cross-tab coordination)
 content    — page-context logic (DOM reads/writes, page-side event listeners)

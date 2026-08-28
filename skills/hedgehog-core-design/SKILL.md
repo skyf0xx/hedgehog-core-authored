@@ -136,6 +136,28 @@ has to hold whatever else changes; treat those adaptation points as
 expected, not as exceptions. Record which blueprint was used and what
 changed from it in `core-design.md`'s rationale (Step 6).
 
+Each blueprint also opens with a `pattern:` line — the architecture its
+base sequence asserts, named for the reason its own "Boundary that must
+hold" section states. **Carry it forward, never copy it blind**: it
+describes the blueprint's *unadapted* sequence, and adaptation is
+expected here (above). Re-derive the pattern against the sequence this
+step actually produces once adaptation points are applied — merging
+`io-adapter` into `domain` on `cli.md`, for instance, collapses the exact
+boundary that made the blueprint's declared value true, and the adapted
+sequence needs its own answer, not the blueprint's leftover label. A
+shape off the table (no blueprint) gets no starting `pattern` either —
+derive one from the sequence this step produces, by the same
+reasoning the blueprints themselves use: name the single layer (if any)
+the design isolates as pure and testable without a real boundary, or the
+single layer everything else depends on and nothing depends outward
+from — that's `hexagonal`. A strict, ordered sequence with no such layer
+singled out is `layered`. Neither reduces cleanly — most commonly, no
+single layer is more "the domain" than any other — get `none`; it costs
+nothing and is honest. This is the same judgment call Step 4 makes for
+`vertical-slice` (below) and #317's `hedgehog-adopt` makes when
+observing rather than designing — one answer, reached the same way,
+regardless of which of the three ever writes it.
+
 | System shape | Blueprint |
 |---|---|
 | CLI | [blueprints/cli.md](blueprints/cli.md) |
@@ -188,10 +210,18 @@ Answer explicitly, because it changes the shape of the whole graph:
   once per intent. Every scope glob, verify command, and commit message
   that differs per module carries the `{module}` placeholder, which
   `hedgehog plan` fills with the intent's id (`src/db/plan.mjs`). The
-  graph is intents × layers tasks.
+  graph is intents × layers tasks. **This is the `pattern: vertical-slice`
+  decision, not a second one** — a module axis writes `vertical-slice`
+  onto `core.yaml` (Step 5), full stop, overriding whatever Step 3 carried
+  from the blueprint. The two can't disagree because they're one answer
+  read twice: `validateCore` would reject a `vertical-slice` declaration
+  with no `{module}` anywhere, so a mismatch here is a load-time failure
+  waiting to happen, not just an inconsistency.
 - **Linear chain** (like `landing-page`) — one pass total, no `{module}`
   anywhere. The graph is one task per layer. Mine the project as a single
-  intent.
+  intent. `pattern` here is whatever Step 3 carried forward (re-derived
+  for the actual sequence, `hexagonal`/`layered`/`none`) — a linear chain
+  never writes `vertical-slice`; there's no module for it to describe.
 
 Choose a module axis when the project has repeating units of domain work
 that each walk the same layers (entities, commands, resources,
@@ -418,15 +448,17 @@ each surface it checks is asserting.
 
 ## Step 5 — write `.hedgehog/core.yaml`
 
-The loader parses `id` plus a `layers` list of flat maps. Every layer
-needs all five fields — `depends_on` is omitted only on the first layer:
+The loader parses `id`, `pattern`, and a `layers` list of flat maps.
+Every layer needs all five fields — `depends_on` is omitted only on the
+first layer:
 
 ```yaml
 id: cli-tool
+pattern: vertical-slice
 layers:
   - id: command-model
-    scope: ["src/commands/**"]
-    verify: "pnpm test commands && pnpm typecheck"
+    scope: ["src/commands/{module}/**"]
+    verify: "pnpm test {module}-command && pnpm typecheck"
     commit: "feat({module}): command model"
   - id: domain
     depends_on: command-model
@@ -439,6 +471,13 @@ layers:
     verify: "pnpm test {module}-adapter"
     commit: "feat({module}): adapter"
 ```
+
+`pattern` here is `vertical-slice`, not `cli.md`'s own `hexagonal` —
+every scope glob above carries `{module}`, so this example is a
+module-axis project (Step 4 above), which always writes
+`vertical-slice` regardless of what the blueprint declared. A linear,
+no-module-axis CLI would carry `cli.md`'s `hexagonal` forward instead
+(or `layered`/`none`, re-derived, if adaptation changed the shape).
 
 Constraints the loader and compiler impose, all of them silent failures
 if missed:
@@ -593,7 +632,10 @@ constraint that justified a substitution), the composition/error/config/
 entrypoint decisions from Step 2, the layer blueprint used and what
 changed from it (or, off-table, that layers were derived directly and
 why), the layers with a line each on what they own and why they sit where
-they do, the module-axis decision, and anything left unresolved. Written
+they do, the module-axis decision, `pattern` and why (the blueprint's own
+value if carried forward unchanged, or what about the adapted sequence
+changed it — the same one-line reasoning each blueprint states next to
+its own `pattern:` line), and anything left unresolved. Written
 once, archival, never edited after — the same stance `.hedgehog/BMAD/`
 takes. Later changes to the architecture are Correction Protocol entries
 in the commit log, not edits here.
@@ -615,6 +657,13 @@ to change only until the file lands. Hard stop.
   cross-checked against that same layer's scope globs (Step 5).
 - The module-axis decision, named as such, with the consequence stated
   (intents × layers tasks, or one task per layer).
+- `pattern`, in plain terms, not the bare word — *"these layers are
+  ordered so that dependencies point inward: the domain layer is never
+  allowed to depend on the adapters"* for `hexagonal`, *"each layer only
+  depends on the one before it"* for `layered`, *"a module-axis project,
+  so the pattern is vertical-slice: this whole sequence repeats once per
+  module"* when Step 4 chose a module axis, or plainly that no single
+  layer reduces to a direction for `none`.
 - For any layer that deploys or publishes: where the push happens
   relative to that layer's commit (Step 4c) — or that no layer deploys.
 - Which layer is the reachability gate and what each surface it checks

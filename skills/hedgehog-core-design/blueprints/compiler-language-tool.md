@@ -6,6 +6,7 @@ the adaptation points below are expected, not exceptions — and record
 what changed in `core-design.md`'s rationale.
 
 ```
+pattern: layered   # a straight transformation pipeline (text to tokens to ast to diagnostics/output) - no layer is singled out as pure and isolated against the rest, unlike the other blueprints' domain layers
 ast       — the node types, spans, and the diagnostic type every later layer reports through
 lexer     — source text to tokens
 parser    — tokens to ast, recovering from errors rather than aborting on the first one

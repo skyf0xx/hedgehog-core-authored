@@ -6,6 +6,7 @@ adaptation points below are expected, not exceptions — and record what
 changed in `core-design.md`'s rationale.
 
 ```
+pattern: hexagonal   # plan is printable and diffable on its own, with no credentials required — see "Boundary that must hold"
 model    — the typed desired-state the tool works against, parsed and validated from config
 provider — the typed operations against each target system (cloud api, kubernetes, ssh), one per target
 plan     — diffing desired state against observed state into an ordered list of changes, pure and printable
