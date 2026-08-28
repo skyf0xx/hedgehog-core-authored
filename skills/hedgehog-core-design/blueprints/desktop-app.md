@@ -6,6 +6,7 @@ adaptation points below are expected, not exceptions — and record what
 changed in `core-design.md`'s rationale.
 
 ```
+pattern: hexagonal   # renderer never touches the filesystem/secrets directly, only through ipc — see "Boundary that must hold"
 ipc      — the typed contract between the privileged process and the UI process
 main     — privileged-process logic: filesystem, OS integration, windows, auto-update, native menus
 domain   — the app's own logic, running in whichever process owns it, with no window or IPC knowledge

@@ -6,6 +6,7 @@ points below are expected, not exceptions — and record what changed in
 `core-design.md`'s rationale.
 
 ```
+pattern: hexagonal   # transform is tested on fixtures without network, credentials, or a warehouse — see "Boundary that must hold"
 schema    — the typed shape of every record crossing a stage boundary, and the validation that enforces it
 extract   — pulling raw records from each source, with no reshaping beyond what the source forces
 transform — the business logic: cleaning, joining, deriving, aggregating, all pure and source-agnostic

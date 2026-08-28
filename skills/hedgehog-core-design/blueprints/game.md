@@ -6,6 +6,7 @@ below are expected, not exceptions — and record what changed in
 `core-design.md`'s rationale.
 
 ```
+pattern: hexagonal   # state is deterministic and tickable through scripted intents with no window open — see "Boundary that must hold"
 state   — the world model and the rules that mutate it: pure, deterministic, no rendering or input
 systems — the per-tick logic (movement, collision, ai, scoring) operating on state
 input   — device events to intents, so state never reads a keyboard or gamepad directly

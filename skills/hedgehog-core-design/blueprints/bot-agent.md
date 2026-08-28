@@ -6,6 +6,7 @@ adaptation points below are expected, not exceptions — and record what
 changed in `core-design.md`'s rationale.
 
 ```
+pattern: hexagonal   # policy is testable without standing up the real delivery surface or a live model — see "Boundary that must hold"
 contract  — the typed input/output shape of every capability, and the intent type policy decides over
 tools     — each capability's implementation, independently callable and testable with no model in the loop
 policy    — the decision logic: which tool a given input calls, knowing nothing about the delivery surface
