@@ -17,7 +17,7 @@ committed.
 
 ### 1. Confirm this hasn't already run
 
-Check for a `feat(<project>): workspace` commit matching
+Check for a `feat(<id>): workspace` commit matching
 `.hedgehog/core.yaml`'s `id` (`git log --oneline --grep="^feat("`), or
 the presence of a root config file the stack in `core-design.md` would
 produce (e.g. `wxt.config.ts` for a WXT browser extension,
