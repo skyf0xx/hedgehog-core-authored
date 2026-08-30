@@ -86,16 +86,39 @@ stop and report it.
 
 ### 5. Install and verify
 
-Install dependencies via the ecosystem's package manager, then run every
-layer's `verify` command from `.hedgehog/core.yaml` once, in order,
-against the freshly generated workspace. Each should pass clean: with no
-domain content yet, this checks that the toolchain wiring those commands
-depend on actually works.
+Install dependencies via the ecosystem's package manager, then walk every
+layer in `.hedgehog/core.yaml`, in order, and check its toolchain:
 
-A `verify` command that fails here fails for a reason worth naming
-before any layer is built on top of it — a missing test runner, a script
-the generator didn't add, a path that doesn't exist. Fix the generation
-(step 4), then re-run this step.
+- **`verify` contains no literal `{module}`** (a linear-chain core, or a
+  module-axis core's `once: true` layer — `validateCore` guarantees a
+  `once` layer never carries `{module}`): run the command as written
+  against the freshly generated workspace. It should pass clean.
+- **`verify` contains a literal `{module}`** (a module-axis core's
+  per-intent layer): don't run the command as written — `{module}` is
+  filled with an intent's id at `hedgehog plan` compile time
+  (`src/db/plan.mjs`), which is strictly after Bootstrap, so no real
+  module exists yet to substitute and the literal string would hit the
+  shell or test runner unresolved. Instead check the underlying tool
+  invokes cleanly with no domain content: run the test runner and
+  typecheck/build commands the `verify` string names with their
+  module-filter arguments and tokens stripped (e.g. `pnpm test
+  {module}-command && pnpm typecheck` from `hedgehog-core-design`'s own
+  worked example becomes `pnpm test && pnpm typecheck`). Passing clean
+  with zero matching tests confirms the toolchain wiring works; the
+  layer's real `verify` command runs for the first time against real
+  content once its first task builds, after `hedgehog plan` has filled
+  `{module}` in.
+
+With no domain content yet, both checks exist to confirm the toolchain
+wiring those commands depend on actually works, before any layer is
+built on top of it.
+
+A command that fails here fails for a reason worth naming — a missing
+test runner, a script the generator didn't add, a path that doesn't
+exist, or (for a `{module}`-bearing `verify`) a stray `{module}` left in
+the stripped-down command because it wasn't fully removed before running
+it. Fix the generation (step 4) or the stripped command, then re-run
+this step.
 
 ### 6. Commit
 
