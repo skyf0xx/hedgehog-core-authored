@@ -11,7 +11,7 @@ verified before it's committed.
 ## Contents
 
 - `agents/layer-eng.md` — builds each layer of an authored core's
-  sequence, one `hedgehog next` packet at a time, gated by `hedgehog
+  sequence, one `hedgehog claim`ed packet at a time, gated by `hedgehog
   verify`.
 - `skills/hedgehog-core-design` — elicits the drivers, names the system
   shape, picks the stack, derives the layers, and writes
@@ -20,9 +20,10 @@ verified before it's committed.
   the stack `hedgehog-core-design` chose, closing Bootstrap on an
   authored core.
 - `skills/hedgehog-authored-loop` — the operating loop for every unit of
-  work on an authored core: one layer per `hedgehog next` packet via
-  `layer-eng`, the module-axis reading, the Correction Protocol, and the
-  Stop Condition, all driven from `.hedgehog/core.yaml`.
+  work on an authored core: one layer per `hedgehog claim`ed packet via
+  `layer-eng` (`hedgehog next` previews it read-only first), the
+  module-axis reading, the Correction Protocol, and the Stop Condition,
+  all driven from `.hedgehog/core.yaml`.
 - `CLAUDE.core.md` — fills a Hedgehog project's root `CLAUDE.md`
   `{{CORE_SECTION}}` placeholder for a freshly authored core.
 - `hedgehog-core.yaml` — this package's manifest: name, the selection
