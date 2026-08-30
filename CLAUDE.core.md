@@ -44,10 +44,11 @@ Correction Protocol.
 ### The skills — invoke these, don't improvise
 
 - **`hedgehog-authored-loop`** — every unit of work once bootstrapped:
-  `hedgehog next` emits the packet for one ready layer, `layer-eng`
-  builds it, `hedgehog verify` gates and commits it. Also holds the
-  Correction Protocol and this core's Stop Condition. Invoke it at the
-  start of any build session and for "what's next".
+  `hedgehog claim` reserves the packet for one ready layer (`hedgehog
+  next` previews it read-only, without reserving), `layer-eng` builds
+  it, `hedgehog verify` gates and commits it. Also holds the Correction
+  Protocol and this core's Stop Condition. Invoke it at the start of any
+  build session and for "what's next".
 - **`hedgehog-bootstrap-authored-core`** — run **once**, at project
   start, to generate and verify this core's workspace from the stack in
   `core-design.md`. Skip once its `feat(<id>): workspace` commit exists.
@@ -71,9 +72,10 @@ Correction Protocol.
   case, not a re-entry pass.
 - **`bootstrap`** — runs `hedgehog-bootstrap-authored-core`'s steps.
   Triggered automatically by `planner` after its first run.
-- **`layer-eng`** — builds one layer per `hedgehog next` packet, working
-  from the packet's ALLOWED SCOPE and `core-design.md`'s description of
-  what that layer owns. Reports the work done; never commits it.
+- **`layer-eng`** — builds one layer per `hedgehog claim`ed packet,
+  working from the packet's ALLOWED SCOPE and `core-design.md`'s
+  description of what that layer owns. Reports the work done; never
+  commits it.
 - **`reviewer`** — checks what the mechanical gate can't: whether the
   layer boundaries `core-design.md` described actually held, and whether
   the interfaces between layers stayed the ones that were designed.
