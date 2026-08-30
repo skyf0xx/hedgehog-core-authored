@@ -396,11 +396,11 @@ layer around it.
 Skip this only if nothing the project publishes is reached through an
 **arbitrator**: an ingress, a router, a gateway, a reverse proxy, a
 process supervisor — anything that decides which backend answers a
-request, and that no layer publishing a surface owns. For every core
-with one, add a `once: true` **reachability layer** at the tail,
-`depends_on` the last per-module layer, whose `verify` makes a real
-request to each intent's primary surface and asserts something specific
-about the answer.
+request, and that no layer publishing a surface owns. For every
+module-axis core with one, add a `once: true` **reachability layer** at
+the tail, `depends_on` the last per-module layer, whose `verify` makes a
+real request to each intent's primary surface and asserts something
+specific about the answer.
 
 Every other check in this skill judges one layer against its own claim.
 This one exists because the defect it catches belongs to no layer. On a
@@ -411,6 +411,16 @@ owned by a third layer that knows neither. Each layer is individually
 correct, each verify passes in isolation, and the request 404s. That is
 a whole-graph property, and only a task that runs after the whole graph
 can hold it.
+
+This defect is specific to a module axis: it needs two or more
+independently-scoped layers making choices that could disagree at the
+arbitrator, and a module axis is what produces more than one such choice.
+A linear chain mines the project as a single intent (Step 4) — one
+surface, not several that could disagree with each other — so this
+failure mode cannot occur there, and a linear chain behind an arbitrator
+(a reverse proxy doing nothing but TLS termination or path routing to one
+backend, say) needs no reachability layer: its own per-layer `verify`
+commands already prove the one surface it publishes.
 
 What the layer asserts is the intent's `outcome` read back from outside:
 the route answers, with a status and a body that could not come from the
