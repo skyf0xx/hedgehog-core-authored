@@ -1,14 +1,13 @@
 # Hedgehog Authored Core ⭐
 
-### A Real Architecture for the Project That Doesn't Fit a Template
+### An Architecture Pass for the Project That Doesn't Fit a Template
 
 Not every project is an app or a landing page. Sometimes the shape
-genuinely doesn't exist yet — and most AI tools respond by picking
-whatever stack is easiest to generate, then improvising the rest as
-they go.
+doesn't exist yet, and most AI tools respond by picking whatever stack
+is easiest to generate, then improvising the rest as they go.
 
-This core does the opposite: it designs the system properly first, then
-builds it one verified layer at a time.
+This core designs the system first, then builds it one verified layer
+at a time.
 
 ```mermaid
 flowchart LR
@@ -20,18 +19,18 @@ flowchart LR
 
 ## What you get
 
-- **A real architecture pass** before any code — drivers elicited, a
-  system shape named, a stack chosen for this project, not a default.
-- **The same discipline as every other core** — layers, scope, and
+- **An architecture pass before any code**: drivers elicited, a system
+  shape named, a stack chosen for this project instead of a default.
+- **The same discipline as every other core**: layers, scope, and
   verification, generated live instead of pre-built.
-- **Nothing improvised mid-build** — the sequence is fixed before the
-  first layer starts.
+- **A fixed build sequence**: the layer order locks in before the
+  first layer starts, so nothing gets improvised mid-build.
 
 ## Built for the project with no template
 
-Reach for this core when the description names a real artifact — but
-not one either shipped core's shape fits. If the work is landing on a
-codebase that already exists, that's a different core: see
+Reach for this core when the description names a concrete artifact that
+doesn't match either shipped core's shape. If the work is landing on an
+existing codebase, that's a different core: see
 [Hedgehog Adopted](https://github.com/skyf0xx/hedgehog-core-adopted).
 
 ## Easy to install and use
@@ -47,7 +46,7 @@ npx @skyf0xx/hedgehog init
 ```
 
 Hedgehog's planner selects this core automatically when a project fits
-no shipped core's shape. There's no install flag for it directly — it's
-designed per project during planning.
+no shipped core's shape. It has no install flag of its own; the planner
+designs it per project.
 
 Technical details: [ARCHITECTURE.md](ARCHITECTURE.md)
