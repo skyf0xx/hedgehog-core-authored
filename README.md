@@ -1,6 +1,6 @@
 # Hedgehog Authored Core ⭐
 
-### An Architecture Pass for the Project That Doesn't Fit a Template
+### For: Well Built Apps without a Hedgehog template
 
 Not every project is an app or a landing page. Sometimes the shape
 doesn't exist yet, and most AI tools respond by picking whatever stack
