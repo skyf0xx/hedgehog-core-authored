@@ -45,8 +45,4 @@ Ask your agent:
 npx @skyf0xx/hedgehog init
 ```
 
-Hedgehog's planner selects this core automatically when a project fits
-no shipped core's shape. It has no install flag of its own; the planner
-designs it per project.
-
 Technical details: [ARCHITECTURE.md](ARCHITECTURE.md)
