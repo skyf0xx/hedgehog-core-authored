@@ -296,6 +296,42 @@ blocked or silently duplicates the dependency locally. Record which
 module pairs are dependent and which layer closes each seam in
 `core-design.md`.
 
+### Watch for a fan-in dispatcher file
+
+A **fan-in dispatcher file** is a single file — a background or
+dispatcher entrypoint, a permissions manifest array, a registration
+list, a hand-maintained switch statement — that structurally needs small
+additive edits from many later intents or layers, even though the scope
+model locks it to one, usually early or middle, layer. It differs from
+the composition seam above in shape: a seam is closed once, by one tail
+layer, after two specific modules; a fan-in dispatcher file keeps
+accepting small edits indefinitely, from intents that don't exist yet
+when the layer that owns it goes `complete`.
+
+Avoid this shape where the stack allows it: prefer a generated dispatch
+table that later layers extend through a data file, over a
+hand-maintained switch statement or array that every later intent has to
+edit directly. Where the stack doesn't support that, design the append
+point deliberately and name the file as a fan-in dispatcher in
+`core-design.md`, so a later intent needing to add one small case or
+entry to it has a named target rather than discovering the constraint
+mid-build. `hedgehog-authored-loop`'s documented escape hatch for a
+narrow, obviously-correct out-of-scope commit is the sanctioned path for
+making that addition once the owning layer is already `complete` — it
+does not need a full Correction Protocol pass for a single case or entry.
+
+Also budget for a gap between what a layer's own `verify` command
+certifies and what a repo-wide commit gate (a pre-commit hook running
+`tsc --noEmit` across a different tsconfig, a lint step scanning the
+whole repo) enforces. A layer whose `verify` command only reads its own
+package or module can pass cleanly while a repo-wide type check still
+fails at commit time — for example, a layer that adds a case to a typed
+union without updating a fan-in dispatcher's exhaustiveness switch
+elsewhere in the repo. A locked file with repo-wide type-checking
+implications should be flagged in `core-design.md` as one that may fail
+at the commit gate rather than at its own layer's verify step, so this
+surfaces as an expected, named gap rather than a build-time surprise.
+
 ## Step 4b — declare each layer's verify radius
 
 For each layer, ask: does this layer's `verify` command only read files
