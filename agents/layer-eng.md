@@ -67,9 +67,7 @@ parsing and typing, and the layer after it consumes the result.
   those limitations knowing you'd inherit them.
 - Declare your own, with `hedgehog debt add <task-id> "<note>"`, whenever
   you leave something the next layer has to compensate for. It lands in
-  the packet of every task that depends on yours. A "KNOWN LIMITATION"
-  comment in a source file reaches nobody — the next packet is assembled
-  from the build graph, not from your file's comments.
+  the packet of every task that depends on yours.
 - Match the conventions already in the workspace: the generated
   toolchain's idioms, the file naming already on disk, the import style
   the earlier layers established.
@@ -85,11 +83,7 @@ parsing and typing, and the layer after it consumes the result.
 3. Build exactly one layer, matching the packet's ALLOWED SCOPE. Run the
    packet's VERIFICATION command yourself as a sanity check before
    reporting back — necessary, not sufficient.
-4. **Report the work as done; do not commit it yourself.** An agent
-   reporting success never moves a task — only `hedgehog verify
-   <task-id>`'s passing exit code does. It checks your changes against
-   ALLOWED SCOPE, re-runs the verification command, and on a pass writes
-   the commit itself.
+4. **Report the work as done; do not commit it yourself.**
 5. One layer at a time — never start the next before `hedgehog verify`
    reports the current one `complete`.
 
