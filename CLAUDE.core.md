@@ -16,30 +16,13 @@ two files, and both are locked:
 Read `core-design.md` to know what this project is and what each layer
 owns.
 
-**The packet is what actually runs.** `hedgehog plan` *copies* each
-layer's scope globs, verify command and commit message onto every task
-row at compile time, and from then on the row — surfaced as the packet
-`hedgehog next`/`claim` emits — is what the engine reads. Editing
-`core.yaml` afterwards does not reach tasks already compiled, and a plain
-`hedgehog plan` re-run won't either (compiling an intent marks it
-`active`, and `plan` only looks at pending ones). So if the packet and
-`core.yaml` disagree, the packet is what your work will be gated
-against — reconcile them rather than picking a winner:
-
-- `hedgehog status` reports a **DRIFT** section naming every task whose
-  compiled fields no longer match `core.yaml`, and what differs.
-- `hedgehog plan --recompile` rewrites those fields from the current
-  `core.yaml` on tasks that haven't started, and refuses (naming each
-  one) tasks that are `building`, `verifying`, `complete` or `blocked`.
-  `--dry-run` previews; `--include-blocked` opts blocked tasks in.
-- A task already built or committed can't be reconciled this way at all
-  — that's the Correction Protocol: fix the layer at its source and
-  re-run it.
-
-Changing either file re-shapes every task the graph compiles *from then
-on*. Both are locked at `hedgehog-core-design`'s Confirm & Lock — a layer
-boundary that turns out wrong is a `planner` decision through the
-Correction Protocol.
+**The packet is what actually runs**, not `core.yaml` directly, once
+`hedgehog plan` has compiled a task — see `hedgehog-authored-loop`'s
+"core.yaml vs. the packet" for the reconciliation mechanic (DRIFT,
+`--recompile`) when the two disagree; that skill is the source, not
+restated here. Changing either locked file re-shapes every task the
+graph compiles *from then on* — a `planner` decision through the
+Correction Protocol, never a quiet edit.
 
 ### The skills — invoke these, don't improvise
 
@@ -49,38 +32,24 @@ Correction Protocol.
   it, `hedgehog verify` gates and commits it. Also holds the Correction
   Protocol and this core's Stop Condition. Invoke it at the start of any
   build session and for "what's next".
+<!-- hedgehog:bootstrap-only start -->
 - **`hedgehog-bootstrap-authored-core`** — run **once**, at project
   start, to generate and verify this core's workspace from the stack in
   `core-design.md`. Skip once its `feat(<id>): workspace` commit exists.
+<!-- hedgehog:bootstrap-only end -->
 - **`conventional-commits`** — when a change spans several layers in one
   working-tree pass and needs splitting back into per-layer commits
   (mainly Correction Protocol cleanups).
 
 ### The agents — delegate the judgment calls
 
-- **`planner`** — planning intake (which core applies, then the vendored
-  BMAD-METHOD shelf run in full and mined into intents) at project start.
-  Owns `.hedgehog/BMAD/`, `.hedgehog/core.yaml`, and
-  `.hedgehog/core-design.md`. On first run, hands off to the `bootstrap`
-  agent once Confirm & Lock holds. Runs again whenever new work enters
-  play — including after the build is complete — taking
-  `hedgehog-planning-intake`'s **Re-entry pass**: the BMAD shelf,
-  `hedgehog-core-design`, and `bootstrap` are all skipped, new scope is
-  mined into additional intents, and `hedgehog plan` compiles them
-  through the existing layer sequence without touching anything already
-  built. Changing the layer sequence itself is a Correction Protocol
-  case, not a re-entry pass.
-- **`bootstrap`** — runs `hedgehog-bootstrap-authored-core`'s steps.
-  Triggered automatically by `planner` after its first run.
-- **`layer-eng`** — builds one layer per `hedgehog claim`ed packet,
-  working from the packet's ALLOWED SCOPE and `core-design.md`'s
-  description of what that layer owns. Reports the work done; never
-  commits it.
-- **`reviewer`** — checks what the mechanical gate can't: whether the
-  layer boundaries `core-design.md` described actually held, and whether
-  the interfaces between layers stayed the ones that were designed.
-- **`tweaker`** — post-build, from a fresh context: takes tweak requests
-  one at a time and reviews the friction log.
+`layer-eng` builds one layer per `hedgehog claim`ed packet, working from
+the packet's ALLOWED SCOPE and `core-design.md`'s description of what
+that layer owns. Reports the work done; never commits it. See
+`hedgehog-authored-loop` for exactly which agent runs which part of the
+loop, including the Layer Transition Checks' use of `reviewer` and the
+Stop Condition's handoff to `tweaker` — that skill is the source, not
+restated here.
 
 ## The constants (do not deviate)
 

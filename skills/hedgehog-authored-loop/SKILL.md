@@ -130,15 +130,12 @@ runtime detail.
    not sufficient. Per task: the work is reported as done; the task is
    not moved and nothing is committed yet.
 4. **As each report arrives, verify it — one at a time, serially.** Run
-   `hedgehog verify <task-id> --owner <owner>`. It checks the touched
-   files against the packet's ALLOWED SCOPE, runs the layer's
-   VERIFICATION command, and on a pass writes the commit (the exact
-   message from `core.yaml`, plus the updated build graph) and unlocks
-   the next layer. On a scope violation or a failing check, the task
-   moves to `blocked` with a `blocked_reason` of `scope_violation` or
-   `verification_failed`, and nothing downstream unlocks. Fix the work,
-   then run `hedgehog retry <task-id>` to return the task to `planned`,
-   claim it again (by task id — see below), and verify again —
+   `hedgehog verify <task-id> --owner <owner>`. On a scope violation or a
+   failing check, the task moves to `blocked` with a `blocked_reason` of
+   `scope_violation` or `verification_failed`, and nothing downstream
+   unlocks. Fix the work, then run `hedgehog retry <task-id>` to return
+   the task to `planned`, claim it again (by task id — see below), and
+   verify again —
    `hedgehog verify` only accepts a task you currently hold in
    `building`, so a blocked task has to go back through `retry` and
    `claim` first. Don't hand-commit around it.
@@ -213,10 +210,7 @@ hedgehog debt add <task-id> "<note>"
 
 The note lands in the **INHERITED DEBT** section of the packet of every
 task that depends on that one, so it reaches the layer that inherits the
-problem. A "KNOWN LIMITATION" comment in a source file is not a
-mechanism — the inheriting task's packet is assembled from the graph, and
-nothing reads that comment. `hedgehog debt list [<task-id>]` reads them
-back.
+problem. `hedgehog debt list [<task-id>]` reads them back.
 
 Debt lives in the build graph only (not a committed log), so it does not
 survive `hedgehog db rebuild` — declare it while the chain is live, which
