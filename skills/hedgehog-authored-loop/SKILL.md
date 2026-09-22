@@ -160,6 +160,28 @@ Each `hedgehog verify` call commits exactly one layer, built right for
 what's known now; a wrong layer is fixed forward later via the Correction
 Protocol.
 
+### Consecutive confirmed no-ops
+
+When a module-axis intent's real work is confined to a known subset of
+layers, and several remaining layers in the fan-out are obviously
+no-ops for it — their scope glob plainly doesn't overlap the intent's
+touched files or module, judged from the module name and packet alone —
+move through claim and verify for that run of consecutive no-ops in a
+tighter loop: claim the next one, confirm nothing applies, verify, and
+move straight to the next, without re-reading the full STATUS/INTENT/
+RELEVANT RULES/ALLOWED SCOPE packet fresh for each one. The
+scope-irrelevance judgment doesn't change layer to layer once it's
+established for this intent.
+
+This is a sanctioned shortcut, not a workaround — it applies only once a
+layer's irrelevance is genuinely obvious, and stops the moment it isn't.
+The scope gate and the commit-per-layer audit trail are unchanged for
+every layer: a no-op still goes through `hedgehog claim` and `hedgehog
+verify` like any other, and a no-op found this way is still reported per
+the packet's HONESTY rules, never silently skipped. The moment a claimed
+layer turns out not to be a no-op, drop back to reading its packet in
+full before acting on it.
+
 ## The packet's INTENT is the whole intent
 
 The packet's **INTENT** block carries the goal and outcome of the intent
@@ -251,6 +273,35 @@ An authored core's own layer sequence is a live subject for this log: a
 layer that keeps needing scope it doesn't have, or two layers that are
 always touched together, is design feedback worth recording even when the
 Correction Protocol resolves the immediate case.
+
+## Escape hatch for a narrow out-of-scope fix
+
+A genuine bug exposed while building a layer, or a small addition another
+intent structurally needs (a permission entry, a registration case, a
+one-line wiring), does not require a full Correction Protocol detour when
+it's small and obviously correct. Commit it directly, as its own commit
+separate from the current task's commit, rather than stashing the current
+work, quiescing, and re-claiming.
+
+This path stays narrow — it is not a general license to work outside
+scope:
+
+- The fix or addition is small, obviously correct, and a real need — not
+  scope creep dressed up as urgency.
+- It still passes the layer's own VERIFICATION command before it lands.
+- It is always committed as its own commit — never folded silently into
+  the current task's commit, and never dropped.
+
+No friction-log entry is required for using this escape hatch — that log
+is for accidental or discovered problems, not for this deliberate,
+sanctioned mechanism. This is also the sanctioned path for a later intent
+that needs to add one small case or entry to an earlier, already-`complete`
+layer's file (see `hedgehog-core-design`'s fan-in dispatcher file guidance
+for when a locked file structurally needs this).
+
+Escalate to the full Correction Protocol the moment the fix stops being
+narrow — it touches more than a couple of lines, its correctness isn't
+obvious on inspection, or it changes behavior a test doesn't already cover.
 
 ## Correction Protocol
 
