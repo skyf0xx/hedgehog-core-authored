@@ -76,6 +76,17 @@ workspace manifest. A generator written for standalone repos doesn't know
 it's landing inside a Hedgehog project's root, and those files shadow the
 real ones.
 
+For a stack with a host-API surface that tests need to mock — browser
+extension `browser.*`/`chrome.*` APIs (WXT and similar), React Native
+native modules, or any platform API the runtime doesn't provide under the
+test runner — lay down one shared, composable mock fixture file at
+bootstrap time, rather than leaving each layer to hand-roll its own
+`vi.mock(...)` block per test file. A test file imports and extends that
+one fixture; a later layer adopting a new host API extends the fixture in
+one place instead of every test file that happens to touch it. Wire the
+fixture into the test runner's setup so every test file gets it without
+importing it by name.
+
 A gap between the generated workspace and `.hedgehog/core.yaml` — a
 `verify` command naming a test runner the generator didn't wire, a
 `scope` glob pointing at a directory the stack doesn't produce — is a
