@@ -83,9 +83,6 @@ layer's code lives — that file is the layout, and it's enforced:
   names for that layer.
 - **Sequential through the chain.** A layer starts once the one before it
   passes its own verification — `hedgehog next` enforces this.
-- **Scope is the boundary.** A layer writes inside its ALLOWED SCOPE and
-  nowhere else; a change that needs to land elsewhere is a correction,
-  not a wider write.
 - **A layer owns one artifact**, reached through the interface
   `core-design.md` named — that boundary is what makes the layer
   independently verifiable.
