@@ -13,7 +13,8 @@ a stack or design layers; a person who could name the right stack and
 layer sequence unprompted wouldn't need a build discipline to enforce it.
 
 The output is one file, `.hedgehog/core.yaml`, in the exact format
-shipped cores use (the contract: the engine's AUTHORING-CORES.md).
+shipped cores use (enforced by `hedgehog core check`; field reference:
+https://github.com/skyf0xx/hedgehog/blob/master/AUTHORING-CORES.md).
 Everything else this skill produces is rationale, and rationale goes to
 `.hedgehog/core-design.md`, not into `core.yaml` — the loader parses a
 narrow YAML subset and throws on anything outside it.
@@ -535,7 +536,8 @@ if missed:
 - **Parser limits.** `scope` is an inline list on one line, a layer's
   fields are flat, and `depends_on` names one existing layer in an
   acyclic chain. `hedgehog core check` reports a violation of any of
-  these; the engine's AUTHORING-CORES.md owns the field contract.
+  these, and the field reference is
+  https://github.com/skyf0xx/hedgehog/blob/master/AUTHORING-CORES.md.
 - **`once: true` marks a cross-cutting layer** — one task for the whole
   build instead of one per intent (Step 4) — so it carries no `{module}`
   in any field.
