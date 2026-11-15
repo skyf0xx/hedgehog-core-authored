@@ -22,13 +22,15 @@ verified before it's committed.
 - `skills/hedgehog-authored-loop` — the operating loop for every unit of
   work on an authored core: one layer per `hedgehog claim`ed packet via
   `layer-eng` (`hedgehog next` previews it read-only first), the
-  module-axis reading, the Correction Protocol, and the Stop Condition,
-  all driven from `.hedgehog/core.yaml`.
+  module-axis reading, and this core's additions to
+  `hedgehog-orchestrating` (the Correction Protocol and the Stop
+  Condition), all driven from `.hedgehog/core.yaml`.
 - `CLAUDE.core.md` — fills a Hedgehog project's root `CLAUDE.md`
   `{{CORE_SECTION}}` placeholder for a freshly authored core.
-- `hedgehog-core.yaml` — this package's manifest: name, the selection
-  prose the Hedgehog planner matches a project description against, and
-  which agents/skills/templates it carries.
+- `hedgehog-core.yaml` — this package's manifest: name, language, engine
+  range, and which agents/skills/templates it carries. The prose the
+  planner matches a project description against is `selects_when` in the
+  engine's `src/registry/cores.json`.
 
 ## Using this package
 
