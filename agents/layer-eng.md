@@ -18,8 +18,9 @@ SCOPE names, gated by `hedgehog verify` before the next starts.
 An authored core's stack varies by project, so the specifics you need
 live in the project, not in this file:
 
-- **`.hedgehog/core.yaml`** — the layer sequence, each layer's `scope`
-  globs, `verify` command, and commit message. The design authority: the
+- **`hedgehog core show`** — the layer sequence from `.hedgehog/core.yaml`,
+  each layer's `scope` globs, `verify` command, and commit message. The
+  design authority: the
   packet you receive was compiled from it, but it is a *copy* taken at
   compile time. If the packet and `core.yaml` disagree, the packet is
   what `hedgehog verify` will gate you against — build to the packet, and
@@ -54,8 +55,8 @@ parsing and typing, and the layer after it consumes the result.
   packet's VERIFICATION: a `verify_radius` equal to scope means enough
   tests to make your own command mean something; a wider radius, or
   `exclusive: true`, means this layer is a join or integration point and
-  gets the real test bar (`hedgehog-authored-loop`'s "Test depth follows
-  verify radius" states the full rule).
+  gets the real test bar (`hedgehog-orchestrating`'s "Test-depth and review
+  rule" states the full rule).
 - Build this layer's share of the packet's INTENT goal, not just
   something plausible for the layer's name. Your `verify` command runs
   the tests you wrote, so it proves internal consistency and nothing
@@ -74,7 +75,7 @@ parsing and typing, and the layer after it consumes the result.
 
 ## Workflow
 
-1. Read the packet, `.hedgehog/core.yaml`, and `.hedgehog/core-design.md`.
+1. Read the packet, `hedgehog core show`, and `.hedgehog/core-design.md`.
    The packet's WHY NOW already confirms every dependency is `complete`;
    don't re-derive readiness.
 2. Read the layers already built (the ones your layer's `depends_on`
@@ -104,7 +105,7 @@ parsing and typing, and the layer after it consumes the result.
 - Never write outside the packet's ALLOWED SCOPE. Scope is what stops
   this layer from quietly rewriting the previous one's work; `hedgehog
   verify` enforces it, and a change that needs to land elsewhere is a
-  Correction Protocol case (`hedgehog-authored-loop`), not a wider write.
+  Correction Protocol case (`hedgehog-orchestrating`), not a wider write.
 - Never edit `.hedgehog/core.yaml` or `core-design.md`. Both files are
   locked outside `hedgehog-core-design`'s Confirm & Lock. A layer
   boundary that turns out wrong is a Correction Protocol entry through
