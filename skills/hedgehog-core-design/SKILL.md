@@ -1,6 +1,6 @@
 ---
 name: hedgehog-core-design
-description: Use on full-stack-app and landing-page alike only when neither shipped core fits a project that is still building something real — picks the stack and designs the layer sequence for it, and writes `.hedgehog/core.yaml`. Invoked by the `planner` agent as Phase 0's third outcome, after the vendored BMAD shelf has run; don't run standalone and don't run when a shipped core fits.
+description: Use only when no flagged core fits a project that is still building something real — picks the stack and designs the layer sequence for it, and writes `.hedgehog/core.yaml`. Invoked by the `planner` agent on Phase 0's outcome 3, after the vendored BMAD shelf has run; don't run standalone and don't run when a flagged core fits.
 ---
 
 # Hedgehog Core Design
@@ -13,10 +13,11 @@ a stack or design layers; a person who could name the right stack and
 layer sequence unprompted wouldn't need a build discipline to enforce it.
 
 The output is one file, `.hedgehog/core.yaml`, in the exact format
-shipped cores use (spec: "Core definitions"). Everything else this skill
-produces is rationale, and rationale goes to `.hedgehog/core-design.md`,
-not into `core.yaml` — the loader (`src/db/core.mjs`) parses a narrow
-YAML subset and throws on anything outside it.
+shipped cores use (enforced by `hedgehog core check`; field reference:
+https://github.com/skyf0xx/hedgehog/blob/master/AUTHORING-CORES.md).
+Everything else this skill produces is rationale, and rationale goes to
+`.hedgehog/core-design.md`, not into `core.yaml` — the loader parses a
+narrow YAML subset and throws on anything outside it.
 
 ## When this runs
 
@@ -24,8 +25,8 @@ After `hedgehog-planning-intake`'s Phase 0, not before. An architecture
 can't be designed from a one-line project description: the drivers that
 decide it — persistence, concurrency, deployment target, integration
 surface — are exactly what BMAD's brief and PRD elicit. So `planner`'s
-Phase 0 reaches its third outcome ("neither shipped core fits, but
-something is being built"), runs the BMAD shelf in full, then opens this
+Phase 0 reaches outcome 3 ("No flagged core fits, but something is
+being built"), runs the BMAD shelf in full, then opens this
 skill against that archive. Intent mining follows this skill, not the
 other way round — the layer sequence has to exist before `hedgehog plan`
 can compile anything against it.
@@ -154,8 +155,8 @@ from — that's `hexagonal`. A strict, ordered sequence with no such layer
 singled out is `layered`. Neither reduces cleanly — most commonly, no
 single layer is more "the domain" than any other — get `none`; it costs
 nothing and is honest. This is the same judgment call Step 4 makes for
-`vertical-slice` (below) and #317's `hedgehog-adopt` makes when
-observing rather than designing — one answer, reached the same way,
+`vertical-slice` (below) and `hedgehog-adopt` makes when observing
+rather than designing — one answer, reached the same way,
 regardless of which of the three ever writes it.
 
 | System shape | Blueprint |
@@ -179,19 +180,16 @@ alike:
 
 - **A layer with no executable verification is not a layer.** Fold it
   into its neighbour or drop it. `verify: manually inspect` is not a
-  verify command, and the loader rejects an empty one outright
-  (`validateCore`, `src/db/core.mjs`).
+  verify command, and the loader rejects an empty one outright.
 - **A layer whose file scope overlaps another layer's must be rejected,
   full stop.** Scope is what stops step N from quietly rewriting step
   N−1's work, and it's also what the scheduler reads to decide two tasks
   can run concurrently (`conflict.mjs`) — overlapping globs break both at
-  once. The loader does not check this for you: `validateCore`
-  (`src/db/core.mjs`) only rejects a missing scope and, on a module-axis
-  core, a layer whose scope omits `{module}`; it does not scan every pair
-  of layers for a general scope collision. Getting this right is on
-  whoever designs the core — check every layer's scope glob against every
-  other layer's by hand before Step 5, not just against its immediate
-  neighbour.
+  once. The loader does not check this for you: it only rejects a missing
+  scope and, on a module-axis core, a layer whose scope omits
+  `{module}`; it does not scan every pair of layers for a collision.
+  Check every layer's scope glob against every other layer's by hand
+  before Step 5, not just against its immediate neighbour.
 - **Don't reproduce a shipped core's sequence under new names.** If
   schema → contract → repository → service → controller is genuinely
   right, Phase 0 picked the wrong outcome.
@@ -535,18 +533,14 @@ if missed:
   both hang off commit shape. Use the conventional-commit form every
   other core uses: `feat({module}): <layer>`, or `feat(<project>):
   <layer>` on a linear chain.
-- **`scope` must be an inline list** — `["a/**", "b/**"]` on one line.
-  Block sequences under `scope:` don't parse.
-- **No nesting beyond a layer's flat fields.** Flat top-level keys other
-  than `id` and `layers` are ignored, but any nested block
-  (`architecture:`, `modules:`, `decisions:`) throws at load. Rationale
-  belongs in `.hedgehog/core-design.md`.
-- **`depends_on` names one layer** that exists in this same core, and the
-  chain must be acyclic. The compiler walks it directly into
-  `dependencies` rows; `validateCore` rejects a name no layer carries.
+- **Parser limits.** `scope` is an inline list on one line, a layer's
+  fields are flat, and `depends_on` names one existing layer in an
+  acyclic chain. `hedgehog core check` reports a violation of any of
+  these, and the field reference is
+  https://github.com/skyf0xx/hedgehog/blob/master/AUTHORING-CORES.md.
 - **`once: true` marks a cross-cutting layer** — one task for the whole
-  build instead of one per intent (Step 4). It must carry no `{module}`
-  in any field, and at least one layer of the core must be without it.
+  build instead of one per intent (Step 4) — so it carries no `{module}`
+  in any field.
 - **`verify` must prove the layer's own claim, not just exit clean.** A
   command that runs but asserts nothing (`tsc --noEmit` alone on a layer
   whose job is behavior, a `test -s` on a file nothing checks the content
@@ -586,50 +580,27 @@ if missed:
   both directions (add the missing scope path, or add the missing
   filter token) before Step 6, not after a build discovers the gap live.
 - **A layer that declares a wider `verify_radius` must run a `verify`
-  that reaches that far.** The constraint above cross-checks `verify`
-  against the layer's own `scope`; this one checks it against
-  `verify_radius`, which is a strictly wider set whenever Step 4b
-  declared one. A command can satisfy the first perfectly and still
-  leave everything between `scope` and the radius unexercised. The
-  radius is a claim that this layer's verify run *reads* that whole set,
-  and the scheduler serializes other tasks against exactly that claim
-  (`conflict.mjs`); a `verify` that runs only its own scope's specs
-  collects the serialization without doing the reading, and the gap is
-  invisible — the layer looks correct in isolation. Concretely: a layer
-  scoped to `apps/api/src/{module}/http/**` with `verify_radius:
-  ["apps/api/**"]` and `verify: "... vitest run src/{module}/http/"`
-  typechecks all of `apps/api` but runs only its own module's specs, so
-  binding a real adapter to a port can falsify a *neighbouring* module's
-  spec asserting that port is still unbound — that spec is outside the
-  filter and never runs, `tsc` sees a type error but not a false
-  assertion, and the task commits green having broken a module it
-  declared it was reading. For every layer with a `verify_radius`,
-  answer yes or no: **for each path in my radius that lies outside my
-  `scope`, does some part of my `verify` command actually execute
-  against it?** If no, widen the command (drop the path filter, run the
-  package's whole suite — the radius already serializes those tasks, so
-  this costs runtime, not concurrency) or narrow the radius to what the
-  command really reads; prefer widening, since Step 4b declared the
-  radius for a reason. `hedgehog status` warns on the form it can see —
-  a wider radius whose `verify` command's only path arguments sit inside
-  `scope` — but a filter expressed as a flag rather than a path
-  (`--testPathPattern={module}`, `-t <name>`) is invisible to it, so on
-  those the answer is yours, not the linter's.
+  that reaches that far.** The radius is a claim that this layer's verify
+  run *reads* that whole set, and the scheduler serializes other tasks
+  against exactly that claim (`conflict.mjs`); a `verify` that runs only
+  its own scope's specs collects the serialization without doing the
+  reading. For every layer with a `verify_radius`, answer yes or no:
+  **for each path in my radius that lies outside my `scope`, does some
+  part of my `verify` command actually execute against it?** If no,
+  widen the command (drop the path filter, run the package's whole
+  suite; the radius already serializes those tasks, so this costs
+  runtime, not concurrency) or narrow the radius to what the command
+  reads; prefer widening. `hedgehog core check` warns on the form it can
+  see, a wider radius whose `verify` path arguments all sit inside
+  `scope`. A filter expressed as a flag (`--testPathPattern={module}`,
+  `-t <name>`) is invisible to it, so on those the answer is yours.
 - **A per-module layer's `verify` must distinguish the module it runs
-  for.** A layer whose `scope` carries `{module}` but whose `verify`
-  neither contains a `{module}` token nor a path argument inside that
-  module's own scope compiles byte-identical across every module — it
-  cannot tell one module's build from another's, let alone from a module
-  never built at all. `lintCore` (`src/db/core.mjs`, surfaced by
-  `hedgehog status`) warns on this, and abstains the moment a `{module}`
-  token or a module-scoped path argument shows up, or when the layer
-  declares `verify_radius` — that declaration is already on record as
-  this layer reading wider than its own module on purpose. Sharpest on a
-  `deploy` layer applying manifests or running a rollout check against a
-  fixed path: `kubectl apply -f k8s/` and `kubectl rollout status
-  deployment/app` read the same thing regardless of which module's task
-  is running, so six modules' deploy tasks assert the identical claim six
-  times rather than each module's own deployment.
+  for.** `hedgehog core check` warns when a layer's `scope` carries
+  `{module}` and its `verify` has neither a `{module}` token nor a path
+  argument inside that scope, and abstains on a layer that declares
+  `verify_radius`. Sharpest on a `deploy` layer applying manifests
+  against a fixed path: six modules' deploy tasks would assert the
+  identical claim six times rather than each module's own deployment.
 - **A reachability layer's `verify` asserts the product answers, not
   that a layer deployed.** The tail `once: true` layer Step 4d calls for
   is the one place a `verify` command is about the whole build rather
@@ -655,20 +626,20 @@ if missed:
   verifies green by hand and fails opaquely under the agent that
   actually runs the build.
 
-Verify the file loads before showing it back, by calling the loader
-directly:
+Check the file before showing it back:
 
 ```bash
-node -e "import('./src/db/core.mjs').then(m => m.loadCore('.hedgehog/core.yaml')).then(c => console.log(JSON.stringify(c, null, 2)))"
+hedgehog core check .hedgehog/core.yaml
 ```
 
-Read the layers it prints back: a field the parser dropped shows up as an
-empty string or `[]` there, and a `{module}` you meant to include is
-visible in the globs or absent from them. A `core.yaml` that throws at
-load time is the one failure mode that strands a project with no path
-forward. The loader only confirms the file parses — it does not run the
-filter/scope cross-check above, so do that by hand against this printed
-output before moving on.
+A `core.yaml` that throws at load time is the one failure mode that
+strands a project with no path forward; it exits 1 and names the error.
+Lint warnings print and leave the exit code at 0, so read each one.
+`hedgehog core show` prints the layers as resolved: a field the parser
+dropped shows up as an empty string or `[]`, and a `{module}` you meant
+to include is visible in the globs or absent from them. The check does
+not run the filter/scope cross-check above or the pairwise scope check
+in Step 3, so do those by hand against that output before moving on.
 
 ## Step 6 — write `.hedgehog/core-design.md`
 
